@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from app import crud, models, schemas
 from app.database import SessionLocal, engine
+from app.seed import seed_database
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -12,6 +13,14 @@ def get_db():
     db = SessionLocal()
     try:
         yield db
+    finally:
+        db.close()
+  
+@app.on_event("startup")
+def on_startup():
+    db = SessionLocal()
+    try:
+        seed_database(db)
     finally:
         db.close()
 
